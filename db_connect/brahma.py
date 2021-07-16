@@ -57,7 +57,9 @@ class Brahma:
             'sf_tq': Brahma.sf_tq,
             'sf_tc': Brahma.sf_tc,
             'sf_alter_operations': Brahma.sf_alter_operations,
-            'sf_truncate_copy_csv': Brahma.sf_truncate_copy_csv
+            'sf_truncate_copy_csv': Brahma.sf_truncate_copy_csv,
+            'mongodump_bson_json': Brahma.mongodump_bson_json,
+            'local_gzip_to_athena_table': Brahma.local_gzip_to_athena_table
         }
         return process_function_map
 
@@ -433,6 +435,23 @@ class Brahma:
         assert sf_table and str(sf_table).count('.') == 2 and s3_path and delimiter and skip_header,\
             alert_message
         SnowflakePipeline.sf_truncate_copy_csv(sf_table, s3_path, delimiter, skip_header)
+    
+    
+    @staticmethod
+    def local_gzip_to_athena_table():
+        """
+        Gzip a local file, move it to s3 bucket, run a DDL command to create a table (optional), 
+        followed by a CTAS for updating an Athena Table
+        """
+        alert_message = "Process = local_gzip_to_athena_table\nStatus = Failed\n" \
+                        "Required arguments = 'localFile', 's3Path', 'delimiter', " \
+                        "'skip_header'"
+        assert sf_table and str(sf_table).count('.') == 2 and s3_path and delimiter and skip_header,\
+            alert_message
+        # TODO: GZIP local file
+        # "gzip {}".format(localFile)
+        # "s3cmd put {}.gz s3://{}".format(localFile, s3Path)
+        # athena_...
 
 
 if __name__ == '__main__':
