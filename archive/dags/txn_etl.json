@@ -1,0 +1,462 @@
+{
+  "default_args": {
+    "depends_on_past": false,
+    "retries": 1,
+    "email_on_failure": true,
+    "email_on_retry": false,
+    "max_active_runs": 30
+  },
+  "txn_etl": {
+    "args": {
+      "dag_name": "Txn-FullBuild",
+      "owner": "Prince Mishra",
+      "email": ["prince.mishra@1mg.com","sarthak.jain@1mg.com", "utkarsh.gupta@1mg.com",
+        "ayush.mittal@1mg.com","nikhil.doegar@1mg.com"],
+      "schedule_interval": "30 1 * * *",
+      "num_stages": 16
+    },
+    "s1": {
+      "dms_check": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "dms_check",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "dms_check": "db_connect/dms_status.py --flock_channel 'Analytics Internal Flockbots' --message 'Full Txn ETL DAG' "
+        }
+      }
+    },
+    "s2": {
+      "move_drop_query": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_order_lines|mdq_prescription|mdq__zone|mdq_reports|mdq_cashback_availed|mdq_crm_jobs|mdq_digitization_jobs|mdq_order_details|mdq_order_meta_data|mdq_sap_request|mdq_third_party_order_request|mdq_booking|mdq_cart|mdq_booking_history|mdq_lab|mdq_test|mdq_canceled_order_reason|mdq_eta_experiment_data|mdq_online_payment|mdq_order_history|mdq_address|mdq_claim|mdq_vendor|mdq_users|insert_comments|mdq_vendor_pincode_logistic_mapping|mdq_profile_new|mdq_order_analytics__combo_skus|mdq_nps_rating",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "mdq_order_lines": "db_connect/brahma.py    --process_type 'athena_mdq'                          --path_category 'stg' --path_name 'base_pharmacy_order/order_lines/'                          --athena_table 's_base_pharmacy_order.order_lines'                           --query_filename 'txn_etl/stg/order_service/order_lines.sql'                          ",
+          "mdq_prescription": "db_connect/brahma.py    --process_type 'athena_mdq'                         --path_category 'stg' --path_name 'base_pharmacy_order/prescription/'                         --athena_table 's_base_pharmacy_order.prescription'                          --query_filename 'txn_etl/stg/order_service/prescription.sql'                         ",
+          "mdq__zone": "db_connect/brahma.py    --process_type 'athena_mdq'                                --path_category 'stg' --path_name 'base_pharmacy_order/zone/'                                 --athena_table 's_base_pharmacy_order.zone'                                  --query_filename 'txn_etl/stg/order_service/zone.sql'                                 ",
+          "mdq_reports": "db_connect/brahma.py    --process_type 'athena_mdq'                              --path_category 'stg' --path_name 'base_diagnostics/reports/'                                 --athena_table 's_base_diagnostics.reports'                                  --query_filename 'txn_etl/stg/diagnostics/reports.sql'                                ",
+          "mdq_cashback_availed": "db_connect/brahma.py    --process_type 'athena_mdq'                     --path_category 'stg' --path_name 'base_pharmacy_order/cashback_availed/'                     --athena_table 's_base_pharmacy_order.cashback_availed'                      --query_filename 'txn_etl/stg/order_service/cashback_availed.sql'                     ",
+          "mdq_crm_jobs": "db_connect/brahma.py    --process_type 'athena_mdq'                             --path_category 'stg' --path_name 'base_pharmacy_order/crm_jobs/'                             --athena_table 's_base_pharmacy_order.crm_jobs'                              --query_filename 'txn_etl/stg/order_service/crm_jobs.sql'                             ",
+          "mdq_digitization_jobs": "db_connect/brahma.py    --process_type 'athena_mdq'                    --path_category 'stg' --path_name 'base_pharmacy_order/digitization_jobs/'                    --athena_table 's_base_pharmacy_order.digitization_jobs'                     --query_filename 'txn_etl/stg/order_service/digitization_jobs.sql'                    ",
+          "mdq_order_details": "db_connect/brahma.py    --process_type 'athena_mdq'                        --path_category 'stg' --path_name 'base_pharmacy_order/order_details/'                        --athena_table 's_base_pharmacy_order.order_details'                         --query_filename 'txn_etl/stg/order_service/order_details.sql'                        ",
+          "mdq_order_meta_data": "db_connect/brahma.py    --process_type 'athena_mdq'                      --path_category 'stg' --path_name 'base_pharmacy_order/order_meta_data/'                      --athena_table 's_base_pharmacy_order.order_meta_data'                       --query_filename 'txn_etl/stg/order_service/order_meta_data.sql'                      ",
+          "mdq_sap_request": "db_connect/brahma.py    --process_type 'athena_mdq'                          --path_category 'stg' --path_name 'base_pharmacy_order/sap_request/'                          --athena_table 's_base_pharmacy_order.sap_request'                           --query_filename 'txn_etl/stg/order_service/sap_request.sql'                          ",
+          "mdq_third_party_order_request": "db_connect/brahma.py    --process_type 'athena_mdq'            --path_category 'stg' --path_name 'base_pharmacy_order/third_party_order_request/'            --athena_table 's_base_pharmacy_order.third_party_order_request'             --query_filename 'txn_etl/stg/order_service/third_party_order_request.sql'            ",
+          "mdq_booking": "db_connect/brahma.py    --process_type 'athena_mdq'                              --path_category 'stg' --path_name 'base_diagnostics/booking/'                                 --athena_table 's_base_diagnostics.booking'                                  --query_filename 'txn_etl/stg/diagnostics/booking.sql'                                ",
+          "mdq_cart": "db_connect/brahma.py    --process_type 'athena_mdq'                                 --path_category 'stg' --path_name 'base_diagnostics/cart/'                                    --athena_table 's_base_diagnostics.cart'                                     --query_filename 'txn_etl/stg/diagnostics/cart.sql'                                   ",
+          "mdq_booking_history": "db_connect/brahma.py    --process_type 'athena_mdq'                      --path_category 'stg' --path_name 'base_diagnostics/booking_history/'                         --athena_table 's_base_diagnostics.booking_history'                          --query_filename 'txn_etl/stg/diagnostics/booking_history.sql'                        ",
+          "mdq_lab": "db_connect/brahma.py    --process_type 'athena_mdq'                                  --path_category 'stg' --path_name 'base_diagnostics/lab/'                                     --athena_table 's_base_diagnostics.lab'                                      --query_filename 'txn_etl/stg/diagnostics/lab.sql'                                    ",
+          "mdq_test": "db_connect/brahma.py    --process_type 'athena_mdq'                                 --path_category 'stg' --path_name 'base_diagnostics/test/'                                    --athena_table 's_base_diagnostics.test'                                     --query_filename 'txn_etl/stg/diagnostics/test.sql'                                   ",
+          "mdq_canceled_order_reason": "db_connect/brahma.py    --process_type 'athena_mdq'                --path_category 'stg' --path_name 'base_pharmacy_order/canceled_order_reason/'                --athena_table 's_base_pharmacy_order.canceled_order_reason'                 --query_filename 'txn_etl/stg/order_service/canceled_order_reason.sql'                ",
+          "mdq_eta_experiment_data": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'stg' --path_name 'base_pharmacy_order/eta_experiment_data/'                  --athena_table 's_base_pharmacy_order.eta_experiment_data'                   --query_filename 'txn_etl/stg/order_service/eta_experiment_data.sql'                  ",
+          "mdq_online_payment": "db_connect/brahma.py    --process_type 'athena_mdq'                       --path_category 'stg' --path_name 'base_pharmacy_order/online_payment/'                       --athena_table 's_base_pharmacy_order.online_payment'                        --query_filename 'txn_etl/stg/order_service/online_payment.sql'                       ",
+          "mdq_order_history": "db_connect/brahma.py    --process_type 'athena_mdq'                        --path_category 'stg' --path_name 'base_pharmacy_order/order_history/'                        --athena_table 's_base_pharmacy_order.order_history'                         --query_filename 'txn_etl/stg/order_service/order_history.sql'                        ",
+          "mdq_address": "db_connect/brahma.py    --process_type 'athena_mdq'                              --path_category 'stg' --path_name 'base_pharmacy_order/address/'                              --athena_table 's_base_pharmacy_order.address'                               --query_filename 'txn_etl/stg/order_service/address.sql'                              ",
+          "mdq_claim": "db_connect/brahma.py    --process_type 'athena_mdq'                                --path_category 'stg' --path_name 'base_pharmacy_order/claim/'                                --athena_table 's_base_pharmacy_order.claim'                                 --query_filename 'txn_etl/stg/order_service/claim.sql'                                ",
+          "mdq_vendor": "db_connect/brahma.py    --process_type 'athena_mdq'                               --path_category 'stg' --path_name 'base_pharmacy_order/vendor/'                               --athena_table 's_base_pharmacy_order.vendor'                                --query_filename 'txn_etl/stg/order_service/vendor.sql'                               ",
+          "mdq_users": "db_connect/brahma.py    --process_type 'athena_mdq'                                --path_category 'stg' --path_name 'base_pharmacy_identity/users/'                             --athena_table 's_base_pharmacy_identity.users'                              --query_filename 'txn_etl/stg/others/users.sql'                                       ",
+          "mdq_profile_new": "db_connect/brahma.py    --process_type 'athena_mdq'                          --path_category 'stg' --path_name 'base_pharmacy_identity/profile_new/'                       --athena_table 's_base_pharmacy_identity.profile_new'                        --query_filename 'txn_etl/stg/others/profile_new.sql'                                 ",
+          "insert_comments": "db_connect/brahma.py     --process_type 'athena_query'                                                                                                                     --check_s3_bucket ''     --check_s3_key ''                                                                               --query_filename 'txn_etl/stg/order_service/comments.sql'                             ",
+          "mdq_vendor_pincode_logistic_mapping": "db_connect/brahma.py    --process_type 'athena_mdq'      --path_category 'stg' --path_name 'base_pharmacy_order/vendor_pincode_logistic_mapping/'      --athena_table 's_base_pharmacy_order.vendor_pincode_logistic_mapping'       --query_filename 'txn_etl/stg/order_service/vendor_pincode_logistic_mapping.sql'      ",
+          "mdq_order_analytics__combo_skus": "db_connect/brahma.py    --process_type 'athena_mdq'          --path_category 'stg' --path_name 'base_pharmacy_order/order_analytics__combo_skus/'          --athena_table 's_base_pharmacy_order.order_analytics__combo_skus'           --query_filename 'txn_etl/stg/order_service/order_analytics__combo_skus.sql'          ",
+          "mdq_nps_rating": "db_connect/brahma.py    --process_type 'athena_mdq'                           --path_category 'stg' --path_name 'base_diagnostics/nps_rating/'                              --athena_table 's_base_diagnostics.nps_rating'                               --query_filename 'txn_etl/stg/diagnostics/nps_rating.sql'                              "
+        }
+      }
+      },
+    "s3": {
+      "status": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "base_status",
+        "no_exec_dt_tasks": "base_status",
+        "bash_cmds": {
+          "base_status": "tasks/bots/fb_scheduler.py --process_name 'build_base_status' --message '' --url 'https://api.flock.com/hooks/sendMessage/1a4c236f-50d6-4c83-a37f-bc48a0d012e2'"
+        }
+      }
+    },
+    "s4": {
+      "move_drop_query": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_order_sla|cp_canceled_order_reason|cp_order_meta_data|mdq_address_with_location|mdq_order_lines__sku__attributes_1|mdq_orders__coupon_details|mdq_orders__delivery_address|mdq_cashback__disccount_val|mdq__eta|mdq_order_nps_ratings|mdq_vendor__vmo_tagging|mdq_pre_order_eta_exp",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "mdq_order_sla": "db_connect/brahma.py    --process_type 'athena_mdq'                       --path_category 'stg' --path_name 'base_pharmacy_order/order_sla/'          --athena_table 's_base_pharmacy_order.order_sla'           --query_filename 'txn_etl/stg/order_service/order_sla.sql'          ",
+          "cp_canceled_order_reason": "db_connect/brahma.py    --process_type 'copy_redshift'         --s3_path  's3://analytics-data-eng/ET/S/base_pharmacy_order/canceled_order_reason/'         --redshift_schema 'dim_fact_redshift'  --redshift_table 'canceled_order_reason' ",
+          "cp_order_meta_data": "db_connect/brahma.py    --process_type 'copy_redshift'               --s3_path  's3://analytics-data-eng/ET/S/base_pharmacy_order/order_meta_data/'                      --redshift_schema 'dim_fact_redshift'  --redshift_table 'order_meta_data' ",
+          "mdq_order_lines__sku__attributes_1": "db_connect/brahma.py    --process_type 'athena_mdq'  --path_category 'stg' --path_name 'base_pharmacy_order/order_lines__sku__attributes_1/'    --athena_table 's_base_pharmacy_order.order_lines__sku__attributes_1'     --query_filename 'txn_etl/stg/order_service/order_lines__sku__attributes_1.sql'    ",
+          "mdq_address_with_location": "db_connect/brahma.py    --process_type 'athena_mdq'           --path_category 'stg' --path_name 'base_pharmacy_order/address_with_location/'             --athena_table 's_base_pharmacy_order.address_with_location'              --query_filename 'txn_etl/stg/order_service/address_with_location.sql'    ",
+          "mdq_orders__coupon_details": "db_connect/brahma.py    --process_type 'athena_mdq'          --path_category 'stg' --path_name 'base_pharmacy_order/orders__coupon_details/'            --athena_table 's_base_pharmacy_order.orders__coupon_details'             --query_filename 'txn_etl/stg/order_service/orders__coupon_details.sql'            ",
+          "mdq_orders__delivery_address": "db_connect/brahma.py    --process_type 'athena_mdq'        --path_category 'stg' --path_name 'base_pharmacy_order/orders__delivery_address/'          --athena_table 's_base_pharmacy_order.orders__delivery_address'           --query_filename 'txn_etl/stg/order_service/orders__delivery_address.sql'          ",
+          "mdq_cashback__disccount_val": "db_connect/brahma.py    --process_type 'athena_mdq'         --path_category 'stg' --path_name 'base_pharmacy_order/cashback__disccount_val/'           --athena_table 's_base_pharmacy_order.cashback__disccount_val'            --query_filename 'txn_etl/stg/order_service/cashback__disccount_val.sql'            ",
+          "mdq__eta": "db_connect/brahma.py    --process_type 'athena_mdq'                            --path_category 'stg' --path_name 'base_pharmacy_order/eta/'                               --athena_table 's_base_pharmacy_order.eta'                                --query_filename 'txn_etl/stg/order_service/eta.sql'                               ",
+          "mdq_order_nps_ratings": "db_connect/brahma.py    --process_type 'athena_mdq'               --path_category 'dim_fact' --path_name 'order_nps_ratings/'                                --athena_table 'dim_fact.order_nps_ratings'                               --query_filename 'txn_etl/dim_fact/order_nps_ratings.sql'            ",
+          "mdq_vendor__vmo_tagging": "db_connect/brahma.py    --process_type 'athena_mdq'             --path_category 'stg' --path_name 'base_pharmacy_order/vendor__vmo_tagging/'               --athena_table 's_base_pharmacy_order.vendor__vmo_tagging'                --query_filename 'txn_etl/stg/order_service/vendor__vmo_tagging.sql'            ",
+          "mdq_pre_order_eta_exp": "db_connect/brahma.py    --process_type 'athena_mdq'               --path_category 'nontxn_fact'  --path_name 'pre_order_eta_exp/'                            --athena_table 'nt_fact.pre_order_eta_exp'                                --query_filename 'rudder/nt_fact/pre_order_eta_exp.sql'   "
+        }
+      },
+      "move_drop_screening_job": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_screening_job|cp_screening_job",
+        "bash_cmds": {
+          "mdq_screening_job": "db_connect/brahma.py    --process_type 'athena_mdq'                      --path_category 'dim_fact' --path_name 'screening_job/'                  --athena_table 'dim_fact.screening_job'            --query_filename 'txn_etl/dim_fact/screening_job.sql'           ",
+          "cp_screening_job": "db_connect/brahma.py   --process_type 'copy_redshift'     --s3_path 's3://analytics-data-eng/ET/DIM_FACT/screening_job/'                  --redshift_schema 'dim_fact_redshift'               --redshift_table 'screening_job' "
+         }
+      }
+    },
+    "s5": {
+      "move_drop_query_parallel": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_ctrl_free_camps_coupon_codes|mdq_cities|mdq_device|mdq_cancel_reason|mdq_delivery_partner_mapping|mdq_ctrl_order_recon|mdq_ctrl_labs_vas_charges|unl_source_map",
+        "no_exec_dt_tasks": "unl_source_map",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "mdq_ctrl_free_camps_coupon_codes": "db_connect/brahma.py    --process_type 'athena_mdq'       --path_category 'ctrl' --path_name 'ctrl_free_camps_coupon_codes/'       --athena_table 'ctrl_map.ctrl_free_camps_coupon_codes'            --query_filename 'txn_etl/ctrl/ctrl_free_camps_coupon_codes.sql'           ",
+          "mdq_cities": "db_connect/brahma.py    --process_type 'athena_mdq'                             --path_category 'ctrl' --path_name 'cities/'                             --athena_table 'ctrl_map.cities'            --query_filename 'txn_etl/ctrl/cities.sql'           ",
+          "mdq_device": "db_connect/brahma.py    --process_type 'athena_mdq'                             --path_category 'ctrl' --path_name 'device/'                             --athena_table 'ctrl_map.device'            --query_filename 'txn_etl/ctrl/device.sql'           ",
+          "mdq_cancel_reason": "db_connect/brahma.py    --process_type 'athena_mdq'                      --path_category 'ctrl' --path_name 'cancel_reason/'                      --athena_table 'ctrl_map.cancel_reason'            --query_filename 'txn_etl/ctrl/cancel_reason.sql'           ",
+          "mdq_delivery_partner_mapping": "db_connect/brahma.py    --process_type 'athena_mdq'           --path_category 'ctrl' --path_name 'delivery_partner_mapping/'           --athena_table 'ctrl_map.delivery_partner_mapping'            --query_filename 'txn_etl/ctrl/delivery_partner_mapping.sql'           ",
+          "mdq_ctrl_order_recon": "db_connect/brahma.py    --process_type 'athena_mdq'                   --path_category 'ctrl' --path_name 'ctrl_order_recon/'                   --athena_table 'ctrl_map.ctrl_order_recon'            --query_filename 'txn_etl/ctrl/ctrl_order_recon.sql'           ",
+          "mdq_ctrl_labs_vas_charges": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'ctrl' --path_name 'ctrl_labs_vas_charges/'              --athena_table 'ctrl_map.ctrl_labs_vas_charges'            --query_filename 'txn_etl/ctrl/ctrl_labs_vas_charges.sql'           ",
+          "unl_source_map": "db_connect/brahma.py --process_type 'del_unload_s3' --s3_path 's3://analytics-data-eng/ET/CTRL/source_map/' --redshift_schema 'marketing_track' --redshift_table 'source_map'"
+        }
+      },
+      "md_screener_performance": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_screener_performance|cp_screener_performance",
+        "bash_cmds": {
+          "mdq_screener_performance": "db_connect/brahma.py    --process_type 'athena_mdq'               --path_category 'dim_fact' --path_name 'screener_performance/'           --athena_table 'dim_fact.screener_performance'            --query_filename 'txn_etl/dim_fact/screener_performance.sql'           ",
+          "cp_screener_performance": "db_connect/brahma.py    --process_type 'copy_redshift'            --s3_path 's3://analytics-data-eng/ET/DIM_FACT/screener_performance/'           --redshift_schema 'dim_fact_redshift'               --redshift_table 'screener_performance' "
+        }
+      },
+      "move_drop_query_order_flow": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_order_flow_step|mdq_order_flows_base|mdq_ctrl_order_flow",
+        "bash_cmds": {
+          "mdq_order_flow_step": "db_connect/brahma.py    --process_type 'athena_mdq'                    --path_category 'ctrl' --path_name 'order_flow_step/'                    --athena_table 'ctrl_map.order_flow_step'            --query_filename 'txn_etl/ctrl/order_flow_step.sql'           ",
+          "mdq_ctrl_order_flow": "db_connect/brahma.py    --process_type 'athena_mdq'                    --path_category 'ctrl' --path_name 'ctrl_order_flow/'                    --athena_table 'ctrl_map.ctrl_order_flow'            --query_filename 'txn_etl/ctrl/ctrl_order_flow.sql'           ",
+          "mdq_order_flows_base": "db_connect/brahma.py    --process_type 'athena_mdq'                   --path_category 'ctrl' --path_name 'order_flows_base/'                   --athena_table 'ctrl_map.order_flows_base'           --query_filename 'txn_etl/ctrl/order_flows_base.sql'          "
+        }
+      },
+
+      "move_drop_query_order_lines": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_ctrl_order_lines_prev|mdq_ctrl_order_lines",
+        "bash_cmds": {
+          "mdq_ctrl_order_lines_prev": "db_connect/brahma.py    --process_type 'athena_mdq'                           --path_category 'ctrl' --path_name 'ctrl_order_lines_prev/'   --athena_table 'ctrl_map.ctrl_order_lines_prev'                  --query_filename 'txn_etl/ctrl/ctrl_order_lines_prev.sql'           ",
+          "mdq_ctrl_order_lines": "db_connect/brahma.py         --process_type 'athena_mdq'                           --path_category 'ctrl' --path_name 'ctrl_order_lines/'        --athena_table 'ctrl_map.ctrl_order_lines'                       --query_filename 'txn_etl/ctrl/ctrl_order_lines.sql'           "
+        }
+      },
+       "move_drop_ctrl_orders_sku_level_coupon_details": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_ctrl_orders_sku_level_coupon_details_intermediate|mdq_ctrl_orders_sku_level_coupon_details",
+        "bash_cmds": {
+          "mdq_ctrl_orders_sku_level_coupon_details_intermediate": "db_connect/brahma.py    --process_type 'athena_mdq'   --path_category 'ctrl' --path_name 'ctrl_orders_sku_level_coupon_details_intermediate/'   --athena_table 'ctrl_map.ctrl_orders_sku_level_coupon_details_intermediate'   --query_filename 'txn_etl/ctrl/ctrl_orders_sku_level_coupon_details_intermediate.sql'    ",
+          "mdq_ctrl_orders_sku_level_coupon_details": "db_connect/brahma.py    --process_type 'athena_mdq'                --path_category 'ctrl' --path_name 'ctrl_orders_sku_level_coupon_details/'                --athena_table 'ctrl_map.ctrl_orders_sku_level_coupon_details'                --query_filename 'txn_etl/ctrl/ctrl_orders_sku_level_coupon_details.sql'                 "
+        }
+      },
+      "move_drop_query_sku_chronic": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_drug_chronic_probability|mdq_sku_chronic_tagging",
+        "bash_cmds": {
+          "mdq_drug_chronic_probability": "db_connect/brahma.py    --process_type 'athena_mdq'           --path_category 'ctrl' --path_name 'drug_chronic_probability/'           --athena_table 'ctrl_map.drug_chronic_probability'            --query_filename 'txn_etl/ctrl/drug_chronic_probability.sql'           ",
+          "mdq_sku_chronic_tagging": "db_connect/brahma.py    --process_type 'athena_mdq'                --path_category 'ctrl' --path_name 'sku_chronic_tagging/'                --athena_table 'ctrl_map.sku_chronic_tagging'            --query_filename 'txn_etl/ctrl/sku_chronic_tagging.sql'           "
+        }
+      },
+      "move_drop_query_gateway_costs": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_map_gateway_costs",
+        "bash_cmds": {
+          "mdq_map_gateway_costs": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'ctrl' --path_name 'map_gateway_costs/'                  --athena_table 'ctrl_map.map_gateway_costs'            --query_filename 'txn_etl/ctrl/map_gateway_costs.sql'           "
+        }
+      },
+       "move_drop_gateway_costs_meta": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_gateway_costs_meta_info|mdq_gateway_commission",
+        "bash_cmds": {
+          "mdq_gateway_costs_meta_info": "db_connect/brahma.py    --process_type 'athena_mdq'             --path_category 'ctrl' --path_name 'gateway_costs_meta_info/'            --athena_table 'ctrl_map.gateway_costs_meta_info'       --query_filename 'txn_etl/ctrl/gateway_costs_meta_info.sql'           ",
+          "mdq_gateway_commission": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'ctrl' --path_name 'gateway_commission/'                 --athena_table 'ctrl_map.gateway_commission'            --query_filename 'txn_etl/ctrl/gateway_commission.sql'           "
+        }
+      }
+    },
+    "s6": {
+      "move_drop_product": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_sku_atrbt|mdq_dim_prod_desc",
+        "bash_cmds": {
+          "mdq_sku_atrbt": "db_connect/brahma.py    --process_type 'athena_mdq'                   --path_category 'dim_fact' --path_name 'sku_atrbt/'                   --athena_table 'dim_fact.sku_atrbt'                  --query_filename 'txn_etl/dim_fact/sku_atrbt.sql' ",
+          "mdq_dim_prod_desc": "db_connect/brahma.py    --process_type 'athena_mdq'               --path_category 'dim_fact' --path_name 'dim_prod_desc/'               --athena_table 'dim_fact.dim_prod_desc'              --query_filename 'txn_etl/dim_fact/dim_prod_desc.sql' "
+        }
+      },
+      "move_drop_user": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_user|cp_user|mdq_user_address|mdq_user_patient|mdq_dim_vendor",
+        "bash_cmds": {
+          "mdq_user": "db_connect/brahma.py    --process_type 'athena_mdq'                        --path_category 'dim_fact' --path_name 'user/'                        --athena_table 'dim_fact.user'                       --query_filename 'txn_etl/dim_fact/user.sql' ",
+          "cp_user": "db_connect/brahma.py    --process_type 'copy_redshift'                 --s3_path 's3://analytics-data-eng/ET/DIM_FACT/user/'                      --redshift_schema 'dim_fact_redshift'                   --redshift_table 'user' ",
+          "mdq_user_address": "db_connect/brahma.py    --process_type 'athena_mdq'                --path_category 'dim_fact' --path_name 'user_address/'                --athena_table 'dim_fact.user_address'               --query_filename 'txn_etl/dim_fact/user_address.sql' ",
+          "mdq_user_patientt": "db_connect/brahma.py    --process_type 'athena_mdq'               --path_category 'dim_fact' --path_name 'user_patient/'                --athena_table 'dim_fact.user_patient'               --query_filename 'txn_etl/dim_fact/user_patient.sql' ",
+          "mdq_dim_vendor": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'dim_fact' --path_name 'dim_vendor/'                  --athena_table 'dim_fact.dim_vendor'                 --query_filename 'txn_etl/dim_fact/dim_vendor.sql' "
+        }
+      },
+       "md_order_prescription_details": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_order_prescription_details|cp_order_prescription_details",
+        "bash_cmds": {
+          "mdq_order_prescription_details": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'dim_fact' --path_name 'order_prescription_details/'      --athena_table 'dim_fact.order_prescription_details'      --query_filename 'txn_etl/dim_fact/order_prescription_details.sql'   ",
+          "cp_order_prescription_details": "db_connect/brahma.py   --process_type 'copy_redshift'       --s3_path 's3://analytics-data-eng/ET/DIM_FACT/order_prescription_details/'    --redshift_schema 'dim_fact_redshift'               --redshift_table 'order_prescription_details' "
+        }
+      },
+      "md_table_single_userid": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_table_single_userid",
+        "bash_cmds": {
+          "mdq_table_single_userid": "db_connect/brahma.py    --process_type 'athena_mdq'            --path_category 'dim_fact' --path_name 'table_single_userid/'             --athena_table 'dim_fact.table_single_userid'             --query_filename 'txn_etl/dim_fact/table_single_userid.sql'            ",
+          "cp_table_single_userid": "db_connect/brahma.py    --process_type 'copy_redshift'       --s3_path 's3://analytics-data-eng/ET/DIM_FACT/table_single_userid/'    --redshift_schema 'dim_fact_redshift'               --redshift_table 'table_single_userid' "
+        }
+      },
+       "md_digitization_lifecycle": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_digitization_lifecycle|cp_digitization_lifecycle",
+        "bash_cmds": {
+          "mdq_digitization_lifecycle": "db_connect/brahma.py    --process_type 'athena_mdq'            --path_category 'dim_fact' --path_name 'digitization_lifecycle/'        --athena_table 'dim_fact.digitization_lifecycle' --query_filename 'txn_etl/dim_fact/digitization_lifecycle.sql'            ",
+          "cp_digitization_lifecycle": "db_connect/brahma.py    --process_type 'copy_redshift'       --s3_path 's3://analytics-data-eng/ET/DIM_FACT/digitization_lifecycle/'    --redshift_schema 'dim_fact_redshift'               --redshift_table 'digitization_lifecycle' "
+        }
+      },
+      "move_drop_uuid": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_nps|mdq_table_single_user|mdq_erxes|mdq_ctrl_vas",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "mdq_nps": "db_connect/brahma.py    --process_type 'athena_mdq'                            --path_category 'dim_fact' --path_name 'nps/'                             --athena_table 'dim_fact.nps'                             --query_filename 'txn_etl/dim_fact/nps.sql'            ",
+          "mdq_table_single_user": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'dim_fact' --path_name 'table_single_user/'               --athena_table 'dim_fact.table_single_user'               --query_filename 'txn_etl/dim_fact/table_single_user.sql'            ",
+          "mdq_erxes": "db_connect/brahma.py    --process_type 'athena_mdq'                          --path_category 'dim_fact' --path_name 'erxes/'                           --athena_table 'dim_fact.erxes'                           --query_filename 'txn_etl/dim_fact/erxes.sql'   ",
+          "mdq_ctrl_vas": "db_connect/brahma.py    --process_type 'athena_mdq'                       --path_category 'ctrl' --path_name 'ctrl_vas/'                            --athena_table 'ctrl_map.ctrl_vas'                        --query_filename 'txn_etl/ctrl/ctrl_vas.sql'            "
+        }
+      }
+    },
+    "s7": {
+      "move_drop_sales": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_order_sls_metadata_pharmacy|mdq_order_sls_metadata_labs|mdq_order_exclusion",
+        "bash_cmds": {
+            "mdq_order_sls_metadata_pharmacy": "db_connect/brahma.py    --process_type 'athena_mdq'    --path_category 'dim_fact' --path_name 'order_sls_metadata_pharmacy/'     --athena_table 'dim_fact.order_sls_metadata_pharmacy'     --query_filename 'txn_etl/dim_fact/order_sls_metadata_pharmacy.sql'           ",
+            "mdq_order_sls_metadata_labs": "db_connect/brahma.py    --process_type 'athena_mdq'        --path_category 'dim_fact' --path_name 'order_sls_metadata_labs/'         --athena_table 'dim_fact.order_sls_metadata_labs'         --query_filename 'txn_etl/dim_fact/order_sls_metadata_labs.sql'           ",
+            "mdq_order_exclusion": "db_connect/brahma.py    --process_type 'athena_mdq'                --path_category 'dim_fact' --path_name 'order_exclusion/'                 --athena_table 'dim_fact.order_exclusion'                 --query_filename 'txn_etl/dim_fact/order_exclusion.sql'              "
+          }
+      },
+       "move_drop_prod_erx": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "cp_erxes|mdq_fc_cogs",
+        "bash_cmds": {
+          "cp_erxes": "db_connect/brahma.py    --process_type 'copy_redshift'                          --s3_path 's3://analytics-data-eng/ET/DIM_FACT/erxes/'                          --redshift_schema 'dim_fact_redshift'               --redshift_table 'erxes' ",
+          "mdq_fc_cogs": "db_connect/brahma.py    --process_type 'athena_mdq'                                 --path_category 'ctrl' --path_name 'fc_cogs/'                              --athena_table 'ctrl_map.fc_cogs'                --query_filename 'txn_etl/ctrl/fc_cogs.sql'            "
+        }
+      }
+    },
+    "s8": {
+      "move_drop_phm": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_pharmacy_order_sales|mdq_pharmacy_order_sku_sales|mdq_pharmacy_order_sku_sales_adv|mdq_oss_merchandising_revenues|mdq_telesales_order_details",
+        "bash_cmds": {
+          "mdq_pharmacy_order_sales": "db_connect/brahma.py    --process_type 'athena_mdq'                     --path_category 'dim_fact' --path_name 'pharmacy_order_sales/'                     --athena_table 'dim_fact.pharmacy_order_sales'                    --query_filename 'txn_etl/dim_fact/pharmacy_order_sales.sql'     ",
+          "mdq_pharmacy_order_sku_sales": "db_connect/brahma.py    --process_type 'athena_mdq'                 --path_category 'dim_fact' --path_name 'pharmacy_order_sku_sales/'                 --athena_table 'dim_fact.pharmacy_order_sku_sales'                --query_filename 'txn_etl/dim_fact/pharmacy_order_sku_sales.sql' ",
+          "mdq_pharmacy_order_sku_sales_adv": "db_connect/brahma.py    --process_type 'athena_mdq'             --path_category 'dim_fact' --path_name 'pharmacy_order_sku_sales_adv/'             --athena_table 'dim_fact.pharmacy_order_sku_sales_adv'            --query_filename 'txn_etl/dim_fact/pharmacy_order_sku_sales_adv.sql' ",
+          "mdq_oss_merchandising_revenues": "db_connect/brahma.py    --process_type 'athena_mdq'               --path_category 'ctrl' --path_name 'oss_merchandising_revenue/'                    --athena_table 'ctrl_map.oss_merchandising_revenue'               --query_filename 'txn_etl/ctrl/oss_merchandising_revenue.sql' ",
+          "mdq_telesales_order_details": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'dim_fact' --path_name 'telesales_order_details/'                  --athena_table 'dim_fact.telesales_order_details'                 --query_filename 'txn_etl/dim_fact/telesales_order_details.sql' "
+        }
+      },
+      "move_drop_lab": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_cogs_labs_order|mdq_labs_order_sales|mdq_labs_order_sku_sales|mdq_labs_order_sku_sales_adv|mdq_lab_tat_metrics|mdq_diagnostics_overview|cp_diagnostics_overview|cp_lab_tat_metrics",
+        "bash_cmds": {
+          "mdq_cogs_labs_order": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'ctrl'     --path_name 'cogs_labs_order/'              --athena_table 'ctrl_map.cogs_labs_order'            --query_filename 'txn_etl/ctrl/cogs_labs_order.sql'     ",
+          "mdq_labs_order_sales": "db_connect/brahma.py    --process_type 'athena_mdq'             --path_category 'dim_fact' --path_name 'labs_order_sales/'             --athena_table 'dim_fact.labs_order_sales'            --query_filename 'txn_etl/dim_fact/labs_order_sales.sql'     ",
+          "mdq_labs_order_sku_sales": "db_connect/brahma.py    --process_type 'athena_mdq'         --path_category 'dim_fact' --path_name 'labs_order_sku_sales/'         --athena_table 'dim_fact.labs_order_sku_sales'        --query_filename 'txn_etl/dim_fact/labs_order_sku_sales.sql' ",
+          "mdq_labs_order_sku_sales_adv": "db_connect/brahma.py    --process_type 'athena_mdq'     --path_category 'dim_fact' --path_name 'labs_order_sku_sales_adv/'     --athena_table 'dim_fact.labs_order_sku_sales_adv'    --query_filename 'txn_etl/dim_fact/labs_order_sku_sales_adv.sql' ",
+          "mdq_lab_tat_metrics": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'dim_fact' --path_name 'lab_tat_metrics/'              --athena_table 'dim_fact.lab_tat_metrics'             --query_filename 'txn_etl/dim_fact/lab_tat_metrics.sql' ",
+          "mdq_diagnostics_overview": "db_connect/brahma.py    --process_type 'athena_mdq'         --path_category 'dim_fact' --path_name 'diagnostics_overview/'         --athena_table 'dim_fact.diagnostics_overview'        --query_filename 'txn_etl/dim_fact/diagnostics_overview.sql' ",
+          "cp_diagnostics_overview": "db_connect/brahma.py    --process_type 'copy_redshift'  --s3_path 's3://analytics-data-eng/ET/DIM_FACT/diagnostics_overview/'       --redshift_schema 'dim_fact_redshift'                    --redshift_table 'diagnostics_overview' ",
+          "cp_lab_tat_metrics": "db_connect/brahma.py   --process_type 'copy_redshift'      --s3_path 's3://analytics-data-eng/ET/DIM_FACT/lab_tat_metrics/'            --redshift_schema 'dim_fact_redshift'                    --redshift_table 'lab_tat_metrics' "
+        }
+      },
+      "cp_order_flow": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "cp_order_flow",
+        "bash_cmds": {
+          "cp_order_flow": "db_connect/brahma.py    --process_type 'copy_redshift'                      --s3_path 's3://analytics-data-eng/ET/CTRL/ctrl_order_flow/'                --redshift_schema 'dim_fact_redshift'               --redshift_table 'order_flows_temp' "
+        }
+      },
+      "move_drop_ec": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_econsults_order_sales|mdq_pre_oos_views_delive|cp_pre_oos_views_delive|mdq_econsults|cp_econsults",
+        "bash_cmds": {
+          "mdq_econsults_order_sales": "db_connect/brahma.py    --process_type 'athena_mdq'             --path_category 'dim_fact' --path_name 'econsults_order_sales/'         --athena_table 'dim_fact.econsults_order_sales'  --query_filename 'txn_etl/dim_fact/econsults_order_sales.sql' ",
+          "mdq_econsults": "db_connect/brahma.py    --process_type 'athena_mdq'             --path_category 'dim_fact' --path_name 'econsults/'         --athena_table 'dim_fact.econsults'  --query_filename 'txn_etl/dim_fact/econsults.sql' ",
+          "mdq_pre_oos_views_delive": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'ctrl'     --path_name 'pre_oos_views_delive/'          --athena_table 'ctrl_map.pre_oos_views_delive'   --query_filename 'txn_etl/ctrl/pre_oos_views_delive.sql'     ",
+          "cp_pre_oos_views_delive": "db_connect/brahma.py    --process_type 'copy_redshift'       --s3_path 's3://analytics-data-eng/ET/CTRL/pre_oos_views_delive/'        --redshift_schema 'dim_fact_redshift'               --redshift_table 'pre_oos_views_delive' ",
+          "cp_econsults": "db_connect/brahma.py   --process_type 'copy_redshift'      --s3_path 's3://analytics-data-eng/ET/DIM_FACT/econsults/'            --redshift_schema 'dim_fact_redshift'                    --redshift_table 'econsults' "
+        }
+      }
+    },
+    "s9": {
+      "move_drop_sls": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_order_sales|mdq_order_sku_sales|bkp_table_single_user|cp_vas_charges|cp_telesales_order_details",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "mdq_order_sales": "db_connect/brahma.py    --process_type 'athena_mdq'              --path_category 'dim_fact' --path_name 'order_sales/'         --athena_table 'dim_fact.order_sales'            --query_filename 'txn_etl/dim_fact/order_sales.sql'         ",
+          "mdq_order_sku_sales": "db_connect/brahma.py    --process_type 'athena_mdq'          --path_category 'dim_fact' --path_name 'order_sku_sales/'     --athena_table 'dim_fact.order_sku_sales'        --query_filename 'txn_etl/dim_fact/order_sku_sales.sql'     ",
+          "bkp_table_single_user": "db_connect/brahma.py      --process_type 's3_cp'    --s3_path 's3://analytics-data-eng/ET/DIM_FACT/table_single_user'   --s3_path_final   's3://analytics-data-eng/Backup/MonthlyFinancial/{version}/Athena/'   --split_version 'current_ymd'",
+          "cp_vas_charges": "db_connect/brahma.py    --process_type 'copy_redshift'        --s3_path 's3://analytics-data-eng/ET/CTRL/ctrl_vas/'                    --redshift_schema 'dim_fact_redshift'                    --redshift_table 'vas_charges' ",
+          "cp_telesales_order_details": "db_connect/brahma.py   --process_type 'copy_redshift'        --s3_path 's3://analytics-data-eng/ET/DIM_FACT/telesales_order_details/'                    --redshift_schema 'dim_fact_redshift'                    --redshift_table 'telesales_order_details' "
+        }
+      }
+    },
+    "s10": {
+      "alert": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "droplet_order_pipeline|cp_order_sales|cp_order_sku_sales",
+        "bash_cmds": {
+          "droplet_order_pipeline": "db_connect/brahma.py    --process_type 'athena_mdq' --path_category 'dim_fact' --path_name 'droplet_order_pipeline/'         --athena_table 'dim_fact.droplet_order_pipeline'            --query_filename 'txn_etl/dim_fact/droplet_order_pipeline.sql'         ",
+          "cp_order_sales": "db_connect/brahma.py    --process_type 'copy_redshift'        --s3_path 's3://analytics-data-eng/ET/DIM_FACT/order_sales/'                  --redshift_schema 'dim_fact_redshift'                    --redshift_table 'order_sales_temp' ",
+          "cp_order_sku_sales": "db_connect/brahma.py    --process_type 'copy_redshift'    --s3_path 's3://analytics-data-eng/ET/DIM_FACT/order_sku_sales/'                --redshift_schema 'dim_fact_redshift'                    --redshift_table 'order_sku_sales_temp' "
+        }
+      }
+    },
+    "s11": {
+      "move_drop_order_sales": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "altr_order_sales|altr_order_sales_temp|altr_order_sales_temp_replmnt|trun_order_sales_temp",
+        "no_exec_dt_tasks": "altr_order_sales|altr_order_sales_temp",
+        "bash_cmds": {
+          "altr_order_sales": "db_connect/brahma.py                           --process_type 'alter_redshift_lock'  --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sales' --redshift_new_table 'order_sales_temp_replacement'",
+          "altr_order_sales_temp": "db_connect/brahma.py                           --process_type 'alter_redshift_lock'  --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sales_temp' --redshift_new_table 'order_sales'",
+          "altr_order_sales_temp_replmnt": "db_connect/brahma.py              --process_type 'alter_redshift'       --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sales_temp_replacement'      --redshift_new_table 'order_sales_temp' ",
+          "trun_order_sales_temp": "db_connect/brahma.py                      --process_type 'truncate_redshift'                   --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sales_temp' "
+        }
+      },
+      "move_drop_order_sku_sales": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "altr_order_sku_sales|altr_order_sku_sales_temp|altr_order_sku_sales_temp_replmnt|trunc_order_sku_sales_temp",
+        "no_exec_dt_tasks": "altr_order_sku_sales|altr_order_sku_sales_temp",
+        "bash_cmds": {
+          "altr_order_sku_sales": "db_connect/brahma.py                           --process_type 'alter_redshift_lock'  --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sku_sales' --redshift_new_table 'order_sku_sales_temp_replacement'",
+          "altr_order_sku_sales_temp": "db_connect/brahma.py                           --process_type 'alter_redshift_lock'  --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sku_sales_temp' --redshift_new_table 'order_sku_sales'",
+          "altr_order_sku_sales_temp_replmnt": "db_connect/brahma.py              --process_type 'alter_redshift'   --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sku_sales_temp_replacement'  --redshift_new_table 'order_sku_sales_temp' ",
+          "trunc_order_sku_sales_temp": "db_connect/brahma.py                      --process_type 'truncate_redshift'               --redshift_schema 'dim_fact_redshift' --redshift_table 'order_sku_sales_temp' "
+        }
+      },
+      "move_drop_order_flow": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "altr_order_flow|altr_order_flow_temp|altr_order_flow_temp_replmnt|trun_order_flow_temp",
+        "no_exec_dt_tasks": "altr_order_flow|altr_order_flow_temp",
+        "bash_cmds": {
+          "altr_order_flow": "db_connect/brahma.py                           --process_type 'alter_redshift_lock'  --redshift_schema 'dim_fact_redshift' --redshift_table 'order_flows' --redshift_new_table 'order_flows_temp_replacement'",
+          "altr_order_flow_temp": "db_connect/brahma.py                           --process_type 'alter_redshift_lock'  --redshift_schema 'dim_fact_redshift' --redshift_table 'order_flows_temp' --redshift_new_table 'order_flows' ",
+          "altr_order_flow_temp_replmnt": "db_connect/brahma.py              --process_type 'alter_redshift'       --redshift_schema 'dim_fact_redshift' --redshift_table 'order_flows_temp_replacement'      --redshift_new_table 'order_flows_temp' ",
+          "trun_order_flow_temp": "db_connect/brahma.py                      --process_type 'truncate_redshift'                   --redshift_schema 'dim_fact_redshift' --redshift_table 'order_flows_temp' "
+        }
+      }
+    },
+    "s12": {
+      "alert": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "mdq_customer_details_lifetime|cp_customer_details_lifetime|mdq_nps_4_db|cp_nps_4_db|mdq_customer_details_lifetime_updt|cp_customer_details_lifetime_updt|mdq_order_exclusion_check|cp_order_exclusion_check|final_status|error_check|duplicates|user_vis_map|user_vis_map_drp|user_vis_map_rep",
+        "no_exec_dt_tasks": "final_status",
+        "bash_cmds": {
+          "mdq_nps_4_db": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'dim_fact' --path_name 'nps_4_db/'                         --athena_table 'dim_fact.nps_4_db'                    --query_filename 'txn_etl/dim_fact/nps_4_db.sql'                     ",
+          "cp_nps_4_db": "db_connect/brahma.py    --process_type 'copy_redshift'        --s3_path 's3://analytics-data-eng/ET/DIM_FACT/nps_4_db/'                    --redshift_schema 'dim_fact_redshift'                    --redshift_table 'nps_4_db' ",
+          "mdq_customer_details_lifetime": "db_connect/brahma.py    --process_type 'athena_mdq' --path_category 'dim_fact' --path_name 'customer_details_lifetime/'        --athena_table 'dim_fact.customer_details_lifetime'   --query_filename 'txn_etl/dim_fact/customer_details_lifetime.sql'    ",
+          "cp_customer_details_lifetime": "db_connect/brahma.py    --process_type 'copy_redshift'  --s3_path 's3://analytics-data-eng/ET/DIM_FACT/customer_details_lifetime/'      --redshift_schema 'dim_fact_redshift'                    --redshift_table 'customer_details_lifetime' ",
+          "mdq_customer_details_lifetime_updt": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'dim_fact' --path_name 'customer_details_lifetime_updt/'                         --athena_table 'dim_fact.customer_details_lifetime_updt'                    --query_filename 'txn_etl/dim_fact/customer_details_lifetime_updt.sql'                     ",
+          "cp_customer_details_lifetime_updt": "db_connect/brahma.py    --process_type 'copy_redshift'        --s3_path 's3://analytics-data-eng/ET/DIM_FACT/customer_details_lifetime_updt/'                    --redshift_schema 'dim_fact_redshift'                    --redshift_table 'customer_details_lifetime_updt' ",
+          "mdq_order_exclusion_check": "db_connect/brahma.py    --process_type 'athena_mdq'                  --path_category 'dim_fact' --path_name 'order_exclusion_check/'                         --athena_table 'dim_fact.order_exclusion_check'                    --query_filename 'txn_etl/dim_fact/order_exclusion_check.sql'                     ",
+          "cp_order_exclusion_check": "db_connect/brahma.py    --process_type 'copy_redshift'       --s3_path 's3://analytics-data-eng/ET/DIM_FACT/order_exclusion_check/'                    --redshift_schema 'dim_fact_redshift'                    --redshift_table 'order_exclusion_check' ",
+          "final_status": "tasks/bots/fb_scheduler.py --process_name 'build_final_status' --message '' --url 'https://api.flock.com/hooks/sendMessage/1a4c236f-50d6-4c83-a37f-bc48a0d012e2'",
+          "error_check": "db_connect/brahma.py --process_type 'build_error_check'  --dag_name 'Txn-FullBuild'",
+          "duplicates": "tasks/txn_etl/send_mail_alert.py",
+          "user_vis_map": "db_connect/brahma.py           --process_type 'athena_query'               --query_filename 'txn_etl/ctrl/user_vis_map.sql'                --check_s3_bucket 'analytics-data-eng'                --check_s3_key 'ET/CTRL/user_vis_map/year={}/month={}/day={}'       --ymd 1",
+          "user_vis_map_drp": "db_connect/brahma.py --process_type 'athena_drop'  --athena_table 'ctrl_map.user_vis_map_{year}{month}{day}'",
+          "user_vis_map_rep": "db_connect/brahma.py  --process_type 'athena_repair'  --athena_table 'ctrl_map.user_vis_map'  --s3_path 's3://analytics-data-eng/ET/CTRL/user_vis_map/year={year}/month={month}/day={day}/' --additional_partition 'ymd'"
+        }
+      }
+    },
+    "s13": {
+      "increase_wh_size": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "inc_wh_size",
+        "bash_cmds": {
+          "inc_wh_size": "db_connect/brahma.py --process_type 'sf_alter_operations' --alter_process_name 'change_warehouse_size'  --warehouse_name 'compute_wh'  --warehouse_size 'small'"
+        }
+      }
+    },
+    "s14": {
+      "drop_query_2": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "sf_tq_order_sales|sf_tq_order_sku_sales|sf_tq_order_flows|sf_tq_diagnostics_overview",
+        "no_exec_dt_tasks": "sf_tq_order_sales|sf_tq_order_sku_sales|sf_tq_order_flows|sf_tq_diagnostics_overview",
+        "is_parallel": 1,
+        "bash_cmds": {
+          "sf_tq_order_sales": "db_connect/brahma.py --process_type 'sf_tc'  --query_filename 'data_warehouse/dim_fact/order_sales.sql' --sf_db 'data_warehouse' --sf_schema 'dim_fact'  --sf_table 'data_warehouse.dim_fact.order_sales'",
+          "sf_tq_order_sku_sales": "db_connect/brahma.py --process_type 'sf_tc'  --query_filename 'data_warehouse/dim_fact/order_sku_sales.sql' --sf_db 'data_warehouse' --sf_schema 'dim_fact'  --sf_table 'data_warehouse.dim_fact.order_sku_sales'",
+          "sf_tq_order_flows": "db_connect/brahma.py --process_type 'sf_tc'  --query_filename 'data_warehouse/dim_fact/order_flows.sql' --sf_db 'data_warehouse' --sf_schema 'dim_fact'  --sf_table 'data_warehouse.dim_fact.order_flows'",
+          "sf_tq_diagnostics_overview": "db_connect/brahma.py --process_type 'sf_tc'  --query_filename 'data_warehouse/dim_fact/diagnostics_overview.sql' --sf_db 'data_warehouse' --sf_schema 'dim_fact'  --sf_table 'data_warehouse.dim_fact.diagnostics_overview'"
+        }
+      }
+    },
+    "s15": {
+      "decrease_wh_size": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "dec_wh_size",
+        "bash_cmds": {
+          "dec_wh_size": "db_connect/brahma.py --process_type 'sf_alter_operations' --alter_process_name 'change_warehouse_size'  --warehouse_name 'compute_wh'  --warehouse_size 'xsmall'"
+        }
+      }
+    },
+    "s16": {
+      "notification_sf": {
+        "home_directory": "/home/ubuntu/1mg/airflow/",
+        "script_language": "python3",
+        "task_ids": "final_status_sf",
+        "no_exec_dt_tasks": "final_status_sf",
+        "bash_cmds": {
+          "final_status_sf": "tasks/bots/fb_scheduler.py --process_name 'build_final_status_sf' --message '' --url 'https://api.flock.com/hooks/sendMessage/1a4c236f-50d6-4c83-a37f-bc48a0d012e2'"
+        }
+      }
+    }
+  }
+}
+
